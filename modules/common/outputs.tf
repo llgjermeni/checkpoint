@@ -42,10 +42,6 @@ output "os_version" {
   value = var.os_version
 }
 
-# output "installation_type" {
-#   value = var.installation_type
-# }
-
 output "number_of_vm_instances" {
   value = var.number_of_vm_instances
 }

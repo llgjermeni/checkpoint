@@ -97,11 +97,6 @@ variable "os_version" {
   type = string
 }
 
-variable "vm_os_sku" {
-  description = "The sku of the image to be deployed."
-  type = string
-}
-
 variable "vm_os_offer" {
   description = "The name of the image offer to be deployed.Choose from: check-point-cg-r8030, check-point-cg-r8040, check-point-cg-r81"
   type = string
@@ -282,10 +277,10 @@ variable "network_security_group_id" {
 #   type = string
 # }
 
-variable "subscription_id" {
-  description = "Subscription ID"
-  type = string
-}
+# variable "subscription_id" {
+#   description = "Subscription ID"
+#   type = string
+# }
 
 # variable "client_id" {
 #   description = "Aplication ID(Client ID)"

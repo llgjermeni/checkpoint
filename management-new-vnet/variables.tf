@@ -255,7 +255,7 @@ locals {
 
   regex_valid_network_cidr = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(/(3[0-2]|2[0-9]|1[0-9]|[0-9]))|$"
   // Will fail if var.address_space is invalid
-  regex_address_space = regex(local.regex_valid_network_cidr, var.address_space) == var.address_space ? 0 : "Variable [address_space] must be a valid address in CIDR notation."
+  # regex_address_space = regex(local.regex_valid_network_cidr, var.address_space) == var.address_space ? 0 : "Variable [address_space] must be a valid address in CIDR notation."
   // Will fail if var.subnet_prefix is invalid
   regex_subnet_prefix = regex(local.regex_valid_network_cidr, var.subnet_prefix) == var.subnet_prefix ? 0 : "Variable [subnet_prefix] must be a valid address in CIDR notation."
 }

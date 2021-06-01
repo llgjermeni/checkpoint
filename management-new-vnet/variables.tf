@@ -9,12 +9,6 @@ variable "resource_group_name" {
   type = string
 }
 
-variable "resource_group_id" {
-  description = "Azure Resource Group ID to use."
-  type = string
-  default = ""
-}
-
 variable "location" {
   description = "The location/region where resource will be created. The full list of Azure regions can be found at https://azure.microsoft.com/regions"
   type = string
@@ -227,20 +221,20 @@ variable "storage_os_disk_caching" {
 }
 
 //********************** Natworking Variables **************************//
-variable "vnet_name" {
-  description = "Virtual Network name"
-  type = string
-}
+# variable "vnet_name" {
+#   description = "Virtual Network name"
+#   type = string
+# }
 
 variable "vnet_subnets" {
   type = list(string)
 }
 
-variable "address_space" {
-  description = "The address space that is used by a Virtual Network."
-  type = string
-  default = "10.0.0.0/16"
-}
+# variable "address_space" {
+#   description = "The address space that is used by a Virtual Network."
+#   type = string
+#   default = "10.0.0.0/16"
+# }
 
 variable "subnet_prefix" {
   description = "Address prefix to be used for network subnet"

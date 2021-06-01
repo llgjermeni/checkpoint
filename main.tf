@@ -26,7 +26,6 @@ module "common" {
   number_of_vm_instances = 1     
   template_version       = "20210126"  
   template_name          = "single_terraform"    
-  installation_type      = "gateway"  
   tags                   = {
 
   }         

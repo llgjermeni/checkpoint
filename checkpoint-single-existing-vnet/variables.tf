@@ -66,6 +66,16 @@ variable "installation_type" {
   type        = string
 }
 
+locals { // locals for 'installation_type' allowed values
+  installation_type_allowed_values = [
+    "custom",
+    "standalone",
+    "gateway"
+  ]
+  // will fail if [var.installation_type] is invalid:
+  validate_installation_type_value = index(local.installation_type_allowed_values, var.installation_type)
+}
+
 variable "vm_size" {
   description = "Specifies size of Virtual Machine"
   type        = string

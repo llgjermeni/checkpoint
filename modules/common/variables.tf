@@ -75,21 +75,6 @@ locals { // locals for 'os_version' allowed values
   validate_os_version_value = index(local.os_version_allowed_values, var.os_version)
 }
 
-variable "installation_type"{
-  description = "Installaiton type. Allowed values: cluster, vmss"
-  type = string
-}
-
-locals { // locals for 'installation_type' allowed values
-  installation_type_allowed_values = [
-    "standalone",
-    "gateway",
-    "custom"
-  ]
-  // will fail if [var.installation_type] is invalid:
-  validate_installation_type_value = index(local.installation_type_allowed_values, var.installation_type)
-}
-
 variable "number_of_vm_instances"{
   description = "Number of VM instances to deploy"
   type = string

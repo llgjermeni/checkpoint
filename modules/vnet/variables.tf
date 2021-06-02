@@ -43,10 +43,10 @@ variable "tags" {
   type = map(string)
   default = {}
 }
-variable "nsg_id" {
-  description = "Network security group to be associated with a Virual Network and subnets"
-  type = string
-}
+# variable "nsg_id" {
+#   description = "Network security group to be associated with a Virual Network and subnets"
+#   type = string
+# }
 
 variable "allocation_method" {
   description = "IP address allocation method"

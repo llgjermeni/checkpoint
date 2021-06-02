@@ -19,14 +19,14 @@ resource "azurerm_public_ip" "public-ip" {
 }
 
 resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
-  subnet_id = var.vnet_subnets[0]
+  subnet_id = data.azurerm_subnet.mgmt_subnet.id
   network_security_group_id = var.nsg_id
 }
 
 resource "azurerm_network_interface_security_group_association" "security_group_association" {
   depends_on = [azurerm_network_interface.nic]
   network_interface_id = azurerm_network_interface.nic.id
-  network_security_group_id = var.network_security_group_id
+  network_security_group_id = var.nsg_id
 }
 
 resource "azurerm_network_interface" "nic" {

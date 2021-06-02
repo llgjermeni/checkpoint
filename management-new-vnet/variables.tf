@@ -268,9 +268,9 @@ variable "bootstrap_script" {
   #"touch /home/admin/bootstrap.txt; echo 'hello_world' > /home/admin/bootstrap.txt"
 }
 
-variable "network_security_group_id" {
-  type = string
-}
+# variable "network_security_group_id" {
+#   type = string
+# }
 //********************** Credentials **************************//
 # variable "tenant_id" {
 #   description = "Tenant ID"

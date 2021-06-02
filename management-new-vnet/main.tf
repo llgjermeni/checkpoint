@@ -12,6 +12,12 @@ resource "azurerm_public_ip" "public-ip" {
     random_id.randomId.hex])
 }
 
+resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
+  # depends_on = [azurerm_virtual_network.vnet, azurerm_subnet.subnet[0]]
+  subnet_id = var.vnet_subnets[0]
+  network_security_group_id = var.nsg_id
+}
+
 resource "azurerm_network_interface_security_group_association" "security_group_association" {
   depends_on = [azurerm_network_interface.nic, var.nsg_id]
   network_interface_id = azurerm_network_interface.nic.id

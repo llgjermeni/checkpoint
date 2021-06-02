@@ -78,9 +78,16 @@ resource "azurerm_image" "custom-image" {
   }
 }
 
+resource "azurerm_marketplace_agreement" "marketplace" {
+  publisher = var.publisher
+  offer     = var.vm_os_offer
+  plan      = var.vm_os_sku
+}
+
 resource "azurerm_virtual_machine" "mgmt-vm-instance" {
   depends_on = [
-    azurerm_network_interface.nic]
+    azurerm_network_interface.nic,
+    azurerm_marketplace_agreement.marketplace]
   location = var.location
   name = var.mgmt_name
   network_interface_ids = [

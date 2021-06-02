@@ -24,13 +24,13 @@ resource "azurerm_subnet_network_security_group_association" "security_group_fro
   count               = local.nsg_condition ? 1 : 0
   depends_on = [azurerm_virtual_network.vnet, azurerm_subnet.subnet[0]]
   subnet_id = azurerm_subnet.subnet[0].id
-  network_security_group_id = var.nsg_id
+  network_security_group_id = local.nsg_condition ? null : var.nsg_id
 }
 resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
   count = length(var.subnet_names) >= 2 && local.nsg_condition ? 1 : 0
   depends_on = [azurerm_virtual_network.vnet, azurerm_subnet.subnet[1]]
   subnet_id = azurerm_subnet.subnet[1].id
-  network_security_group_id = var.nsg_id
+  network_security_group_id = local.nsg_condition ? null : var.nsg_id
 }
 
 locals { // locals for 'next_hop_type' allowed values

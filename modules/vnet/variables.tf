@@ -35,7 +35,7 @@ variable "subnet_prefixes" {
 variable "subnet_names" {
   description = "A list of subnets's names in a Virtual Network"
   type = list(string)
-  default = ["Frontend","Backend"]
+  # default = ["Frontend","Backend"]
 }
 
 variable "tags" {

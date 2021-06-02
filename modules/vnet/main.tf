@@ -27,7 +27,7 @@ resource "azurerm_subnet_network_security_group_association" "security_group_fro
   network_security_group_id = var.nsg_id
 }
 resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
-  count = length(var.subnet_id) >= 2 && local.nsg_condition ? 1 : 0
+  count = length(var.subnet_names) >= 2 && local.nsg_condition ? 1 : 0
   depends_on = [azurerm_virtual_network.vnet, azurerm_subnet.subnet[1]]
   subnet_id = azurerm_subnet.subnet[1].id
   network_security_group_id = var.nsg_id

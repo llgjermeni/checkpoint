@@ -11,13 +11,13 @@ resource "azurerm_network_security_group" "nsg" {
 
 resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
   # count               = local.nsg_condition ? 1 : 0
-  depends_on = [var.vnet_name, var.subnet_names[0]]
+  # depends_on = [var.vnet_name, var.subnet_names[0]]
   subnet_id = var.subnet_id[0]
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
-  count = length(var.subnet_names) >= 2 ? 1 : 0
-  depends_on = [var.vnet, var.subnet_names[1]]
+  count = length(var.subnet_id) >= 2 ? 1 : 0
+  # depends_on = [var.vnet, var.subnet_names[1]]
   subnet_id = var.subnet_id[1]
   network_security_group_id = azurerm_network_security_group.nsg.id
 }

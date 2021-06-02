@@ -13,9 +13,9 @@ resource "azurerm_public_ip" "public-ip" {
 }
 
 resource "azurerm_network_interface_security_group_association" "security_group_association" {
-  depends_on = [azurerm_network_interface.nic, var.network_security_group_id]
+  depends_on = [azurerm_network_interface.nic, var.nsg_id]
   network_interface_id = azurerm_network_interface.nic.id
-  network_security_group_id = var.network_security_group_id
+  network_security_group_id = var.nsg_id
 }
 
 resource "azurerm_network_interface" "nic" {

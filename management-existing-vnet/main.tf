@@ -1,4 +1,10 @@
-//********************** Providers **************************//
+
+//********************** Networking **************************//
+data "azurerm_subnet" "mgmt_subnet" {
+  name = var.management_subnet_name
+  virtual_network_name = var.vnet_name
+  resource_group_name = var.vnet_resource_group
+}
 
 resource "azurerm_public_ip" "public-ip" {
   name = var.mgmt_name
@@ -18,9 +24,9 @@ resource "azurerm_subnet_network_security_group_association" "security_group_fro
 }
 
 resource "azurerm_network_interface_security_group_association" "security_group_association" {
-  depends_on = [azurerm_network_interface.nic, var.nsg_id]
+  depends_on = [azurerm_network_interface.nic]
   network_interface_id = azurerm_network_interface.nic.id
-  network_security_group_id = var.nsg_id
+  network_security_group_id = var.network_security_group_id
 }
 
 resource "azurerm_network_interface" "nic" {
@@ -33,9 +39,9 @@ resource "azurerm_network_interface" "nic" {
 
   ip_configuration {
     name = "ipconfig1"
-    subnet_id = var.vnet_subnets[0]
+    subnet_id = data.azurerm_subnet.mgmt_subnet.id
     private_ip_address_allocation = var.vnet_allocation_method
-    private_ip_address = cidrhost(var.subnet_prefix, 4)
+    private_ip_address = cidrhost(data.azurerm_subnet.mgmt_subnet.address_prefix, 4)
     public_ip_address_id = azurerm_public_ip.public-ip.id
   }
 }
@@ -131,6 +137,7 @@ resource "azurerm_virtual_machine" "mgmt-vm-instance" {
       management_GUI_client_network = var.management_GUI_client_network
     })
   }
+
 
   os_profile_linux_config {
     disable_password_authentication = local.SSH_authentication_type_condition

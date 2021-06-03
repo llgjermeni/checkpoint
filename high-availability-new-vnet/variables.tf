@@ -253,18 +253,18 @@ variable "subnets_id" {
   type = list(string)
 }
 
-variable "address_space" {
-  description = "The address space that is used by a Virtual Network."
-  type = string
-  default = "10.0.0.0/16"
-}
+# variable "address_space" {
+#   description = "The address space that is used by a Virtual Network."
+#   type = string
+#   default = "10.0.0.0/16"
+# }
 
 variable "subnet_prefixes" {
   description = "Address prefix to be used for netwok subnets"
   type = list(string)
-  default = [
-    "10.0.0.0/24",
-    "10.0.1.0/24"]
+  # default = [
+  #   "10.0.0.0/24",
+  #   "10.0.1.0/24"]
 }
 
 variable "lb_probe_name" {

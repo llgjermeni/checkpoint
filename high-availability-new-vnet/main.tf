@@ -1,14 +1,14 @@
 resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
   # count               = local.nsg_condition ? 1 : 0
   # depends_on = [azurerm_virtual_network.vnet, azurerm_subnet.subnet[0]]
-  subnet_id = var.vnet_subnets[0]
+  subnet_id = var.subnets_id[0]
   network_security_group_id = var.nsg_id
 }
 
 resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
   # count = length(var.subnet_names) >= 2 && local.nsg_condition ? 1 : 0
   # depends_on = [azurerm_virtual_network.vnet, azurerm_subnet.subnet[1]]
-  subnet_id = var.vnet_subnets[1]
+  subnet_id = var.subnets_id[1]
   network_security_group_id = var.nsg_id
 }
 
@@ -43,14 +43,14 @@ resource "azurerm_network_interface" "nic_vip" {
   ip_configuration {
     name = "ipconfig1"
     primary = true
-    subnet_id = var.vnet_subnets[0]
+    subnet_id = var.subnets_id[0]
     private_ip_address_allocation = var.allocation_method
     private_ip_address = cidrhost(var.subnet_prefixes[0], 5)
     public_ip_address_id = azurerm_public_ip.public-ip.0.id
   }
   ip_configuration {
     name = "cluster-vip"
-    subnet_id = var.vnet_subnets[0]
+    subnet_id = var.subnets_id[0]
     primary = false
     private_ip_address_allocation = var.allocation_method
     private_ip_address = cidrhost(var.subnet_prefixes[0], 7)
@@ -85,7 +85,7 @@ resource "azurerm_network_interface" "nic" {
   ip_configuration {
     name = "ipconfig1"
     primary = true
-    subnet_id = var.vnet_subnets[0]
+    subnet_id = var.subnets_id[0]
     private_ip_address_allocation = var.allocation_method
     private_ip_address = cidrhost(var.subnet_prefixes[0], 6)
     public_ip_address_id = azurerm_public_ip.public-ip.1.id
@@ -118,7 +118,7 @@ resource "azurerm_network_interface" "nic1" {
 
   ip_configuration {
     name = "ipconfig2"
-    subnet_id = var.vnet_subnets[1]
+    subnet_id = var.subnets_id[1]
     private_ip_address_allocation = var.allocation_method
     private_ip_address = cidrhost(var.subnet_prefixes[1], count.index+5)
   }
@@ -168,7 +168,7 @@ resource "azurerm_lb" "backend-lb" {
   sku = var.sku
   frontend_ip_configuration {
     name = "backend-lb"
-    subnet_id = var.vnet_subnets[1]
+    subnet_id = var.subnets_id[1]
     private_ip_address_allocation = var.allocation_method
     private_ip_address = cidrhost(var.subnet_prefixes[1], 4)
   }

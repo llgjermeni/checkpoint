@@ -249,7 +249,7 @@ variable "vnet_name" {
   type = string
 }
 
-variable "vnet_subnets" {
+variable "subnets_id" {
   type = list(string)
 }
 

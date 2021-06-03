@@ -52,6 +52,12 @@ variable "admin_password" {
   type = string
 }
 
+variable "boot_diagnostics" {
+  type        = bool
+  description = "Enable or Disable boot diagnostics"
+  default     = true
+}
+
 variable "sic_key" {
   description = "Secure Internal Communication(SIC) key"
   type = string

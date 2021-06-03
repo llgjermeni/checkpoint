@@ -25,3 +25,7 @@ output "subnet_prefixes" {
 output "allocation_method" {
   value = var.allocation_method
 }
+
+output  "subnet_names" {
+  value = var.subnet_names
+}

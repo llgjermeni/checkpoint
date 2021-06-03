@@ -335,3 +335,10 @@ variable "enable_custom_metrics" {
   type = bool
   default = true
 }
+
+//********************** Role Assigments variables**************************//
+variable "role_definition" {
+  description = "Role definition. The full list of Azure Built-in role descriptions can be found at https://docs.microsoft.com/bs-latn-ba/azure/role-based-access-control/built-in-roles"
+  type = string
+  default = "Contributor"
+}

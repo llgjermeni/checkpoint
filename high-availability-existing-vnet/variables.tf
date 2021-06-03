@@ -250,7 +250,7 @@ variable "backend_IP_addresses" {
   type = list(number)
 }
 
-variable "allocation_method" {
+variable "vnet_allocation_method" {
   description = "IP address allocation method"
   type = string
   default = "Static"

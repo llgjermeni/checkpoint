@@ -165,7 +165,7 @@ resource "azurerm_lb" "frontend-lb" {
 }
 
 resource "azurerm_lb_backend_address_pool" "frontend-lb-pool" {
-  resource_group_name = module.common.resource_group_name
+  resource_group_name = var.resource_group_name
   loadbalancer_id = azurerm_lb.frontend-lb.id
   name = "frontend-lb-pool"
 }
@@ -262,12 +262,12 @@ resource "azurerm_virtual_machine" "vm-instance-availability-set" {
     azurerm_network_interface.nic1,
     azurerm_network_interface.nic_vip,
     azurerm_marketplace_agreement.marketplace]
-  count = local.availability_set_condition ? module.common.number_of_vm_instances : 0
+  count = local.availability_set_condition ? var.number_of_vm_instances : 0
   name = "${var.cluster_name}${count.index+1}"
   location = var.location
   resource_group_name = var.resource_group_name
   availability_set_id = local.availability_set_condition ? azurerm_availability_set.availability-set[0].id : ""
-  vm_size = module.common.vm_size
+  vm_size = var.vm_size
   network_interface_ids = count.index == 0 ? [
     azurerm_network_interface.nic_vip.id,
     azurerm_network_interface.nic1.0.id] : [
@@ -350,13 +350,13 @@ resource "azurerm_virtual_machine" "vm-instance-availability-zone" {
     azurerm_network_interface.nic,
     azurerm_network_interface.nic1,
     azurerm_network_interface.nic_vip]
-  count = local.availability_set_condition ? 0 : module.common.number_of_vm_instances
+  count = local.availability_set_condition ? 0 : var.number_of_vm_instances
   name = "${var.cluster_name}${count.index+1}"
   location = var.location
   resource_group_name = var.resource_group_name
   zones = [
     count.index+1]
-  vm_size = module.common.vm_size
+  vm_size = var.vm_size
   network_interface_ids = count.index == 0 ? [
     azurerm_network_interface.nic_vip.id,
     azurerm_network_interface.nic1.0.id] : [

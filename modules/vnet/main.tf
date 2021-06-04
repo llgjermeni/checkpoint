@@ -16,23 +16,6 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes = [var.subnet_prefixes[count.index]]
 }
 
-# locals {
-#   nsg_condition = var.nsg_id == null ? false : true
-# }
-
-# resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
-#   count               = local.nsg_condition ? 1 : 0
-#   depends_on = [azurerm_virtual_network.vnet, azurerm_subnet.subnet[0]]
-#   subnet_id = azurerm_subnet.subnet[0].id
-#   network_security_group_id = join("", var.nsg_id)
-# }
-# resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
-#   count = length(var.subnet_names) >= 2 && local.nsg_condition ? 1 : 0
-#   depends_on = [azurerm_virtual_network.vnet, azurerm_subnet.subnet[1]]
-#   subnet_id = azurerm_subnet.subnet[1].id
-#   network_security_group_id = join("", var.nsg_id)
-# }
-
 locals { // locals for 'next_hop_type' allowed values
   next_hop_type_allowed_values = [
     "VirtualNetworkGateway",

@@ -47,8 +47,11 @@ module "common" {
 //********************** Single new vnet**************************//
 # module "checkpoint-single-new-vnet" {
 #     source                        = "./checkpoint-single"
+  # client_secret                   = "PLEASE ENTER CLIENT SECRET"                                     # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  # client_id                       = "PLEASE ENTER CLIENT ID"                                         # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  # tenant_id                       = ""                                         # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  # subscription_id                 = "PLEASE ENTER SUBSCRIPTION ID"                                   # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
-#     subscription_id               = "67cbc60e-2a29-4cb3-a515-c24a5cb35dbb" # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 #     source_image_vhd_uri          = "noCustomUri"                          # "noCustomUri"
 #     resource_group_name           = module.common.resource_group_name
 #     location                      = module.common.resource_group_location
@@ -74,7 +77,10 @@ module "common" {
 module "checkpoint-single-existing-vnet" {
   source                        = "./checkpoint-single-existing-vnet"
   
-  subscription_id               = "47f1c351-5c94-463e-8bca-cdf6bca35321" # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  # client_secret                   = "PLEASE ENTER CLIENT SECRET"                                     # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  # client_id                       = "PLEASE ENTER CLIENT ID"                                         # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  # tenant_id                       = ""                                         # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  # subscription_id                 = "PLEASE ENTER SUBSCRIPTION ID"                                   # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   source_image_vhd_uri          = "noCustomUri"                          # "noCustomUri"
   resource_group_name           = module.common.resource_group_name
   location                      = module.common.resource_group_location

@@ -170,11 +170,7 @@ variable "vnet_name" {
   type = string
 }
 
-variable "vnet" {
-  type = string
-}
-
-variable "subnets" {
+variable "vnet_subnets" {
 type = list(string)
 }
 

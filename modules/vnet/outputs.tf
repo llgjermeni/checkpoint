@@ -6,10 +6,6 @@ output "vnet_name" {
   value = azurerm_virtual_network.vnet.name
 }
 
-output "vnet" {
-  value = azurerm_virtual_network.vnet.name
-}
-
 output "vnet_location" {
   value = azurerm_virtual_network.vnet.location
 }
@@ -20,10 +16,6 @@ output "vnet_address_space" {
 
 output "vnet_subnets" {
   value = azurerm_subnet.subnet.*.id
-}
-
-output "subnets" {
-  value = azurerm_subnet.subnet.*
 }
 
 output "subnet_prefixes" {

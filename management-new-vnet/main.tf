@@ -18,7 +18,7 @@ resource "azurerm_subnet_network_security_group_association" "security_group_fro
 }
 
 resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
-  subnet_id = var.subnets_id[1]
+  subnet_id = var.vnet_subnets[1]
   network_security_group_id = var.nsg_id
 }
 

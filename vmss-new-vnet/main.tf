@@ -1,9 +1,11 @@
 resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
+  depends_on = [var.nsg_id]
   subnet_id = var.vnet_subnets[0]
   network_security_group_id = var.nsg_id
 }
 
 resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
+  depends_on = [var.nsg_id]
   subnet_id = var.vnet_subnets[1]
   network_security_group_id = var.nsg_id
 }
@@ -206,7 +208,7 @@ resource "azurerm_virtual_machine_scale_set" "vmss" {
      network_security_group_id = var.nsg_id
      ip_configuration {
        name = "ipconfig1"
-       subnet_id = module.vnet.vnet_subnets[0]
+       subnet_id = var.vnet_subnets[0]
        load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.frontend-lb-pool.id]
        primary = true
      }
@@ -219,14 +221,14 @@ resource "azurerm_virtual_machine_scale_set" "vmss" {
      accelerated_networking = true
      ip_configuration {
        name = "ipconfig2"
-       subnet_id = module.vnet.vnet_subnets[1]
+       subnet_id = var.vnet_subnets[1]
        load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.backend-lb-pool.id]
        primary = true
      }
  }
   sku {
     capacity = var.number_of_vm_instances
-    name = module.common.vm_size
+    name = var.vm_size
     tier = "Standard"
   }
 
@@ -261,7 +263,7 @@ resource "azurerm_monitor_autoscale_setting" "vmss_settings" {
     name = "Profile1"
 
     capacity {
-      default = module.common.number_of_vm_instances
+      default = var.number_of_vm_instances
       minimum = var.minimum_number_of_vm_instances
       maximum = var.maximum_number_of_vm_instances
     }
@@ -321,7 +323,7 @@ resource "azurerm_role_assignment" "custom_metrics_role_assignment"{
   count = var.enable_custom_metrics ? 1 : 0
   role_definition_id = join("", ["/subscriptions/", var.subscription_id, "/providers/Microsoft.Authorization/roleDefinitions/", "3913510d-42f4-4e42-8a64-420c390055eb"])
   principal_id = lookup(azurerm_virtual_machine_scale_set.vmss.identity[0], "principal_id")
-  scope = module.common.resource_group_id
+  scope = var.resource_group_id
 
   lifecycle {
     ignore_changes = [

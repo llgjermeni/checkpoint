@@ -9,6 +9,12 @@ variable "resource_group_name" {
   type = string
 }
 
+variable "resource_group_id" {
+  description = "Azure Resource Group ID to use."
+  type = string
+  default = ""
+}
+
 variable "location" {
   description = "The location/region where resources will be created. The full list of Azure regions can be found at https://azure.microsoft.com/regions"
   type = string
@@ -55,6 +61,12 @@ variable "sic_key" {
 }
 resource "null_resource" "sic_key_invalid" {
   count = length(var.sic_key) >= 12 ? 0 : "SIC key must be at least 12 characters long"
+}
+
+variable "boot_diagnostics" {
+  type        = bool
+  description = "Enable or Disable boot diagnostics"
+  default     = true
 }
 
 variable "template_name"{
@@ -370,25 +382,25 @@ variable "notification_email" {
 }
 
 //********************** Credentials **************************//
-variable "tenant_id" {
-  description = "Tenant ID"
-  type = string
-}
+# variable "tenant_id" {
+#   description = "Tenant ID"
+#   type = string
+# }
 
 variable "subscription_id" {
   description = "Subscription ID"
   type = string
 }
 
-variable "client_id" {
-  description = "Aplication ID(Client ID)"
-  type = string
-}
+# variable "client_id" {
+#   description = "Aplication ID(Client ID)"
+#   type = string
+# }
 
-variable "client_secret" {
-  description = "A secret string that the application uses to prove its identity when requesting a token. Also can be referred to as application password."
-  type = string
-}
+# variable "client_secret" {
+#   description = "A secret string that the application uses to prove its identity when requesting a token. Also can be referred to as application password."
+#   type = string
+# }
 
 variable "sku" {
   description = "SKU"

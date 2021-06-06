@@ -12,15 +12,15 @@ data "azurerm_subnet" "backend" {
   resource_group_name = var.vnet_resource_group
 }
 
-resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
-  subnet_id = data.azurerm_subnet.frontend.id
-  network_security_group_id = var.nsg_id
-}
+# resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
+#   subnet_id = data.azurerm_subnet.frontend.id
+#   network_security_group_id = var.nsg_id
+# }
 
-resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
-  subnet_id = data.azurerm_subnet.backend.id
-  network_security_group_id = var.nsg_id
-}
+# resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
+#   subnet_id = data.azurerm_subnet.backend.id
+#   network_security_group_id = var.nsg_id
+# }
 
 resource "azurerm_public_ip" "public-ip" {
   count = 2

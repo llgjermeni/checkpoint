@@ -1,91 +1,29 @@
-terraform {
-  required_version = ">= 0.14.3"
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 2.17.0"
-    }
-    random = {
-      version = "~> 2.2.1"
-    }
-  }
+resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
+  depends_on = [var.vnet, var.subnet[0]]
+  subnet_id = var.vnet_subnets[0]
+  network_security_group_id = var.nsg_id
 }
 
-provider "azurerm" {
-  subscription_id = var.subscription_id
-  client_id = var.client_id
-  client_secret = var.client_secret
-  tenant_id = var.tenant_id
-
-  features {}
-}
-
-//********************** Basic Configuration **************************//
-module "common" {
-  source = "../modules/common"
-  resource_group_name = var.resource_group_name
-  location = var.location
-  admin_password = var.admin_password
-  installation_type = var.installation_type
-  template_name = var.template_name
-  template_version = var.template_version
-  number_of_vm_instances = var.number_of_vm_instances
-  allow_upload_download = var.allow_upload_download
-  vm_size = var.vm_size
-  disk_size = var.disk_size
-  is_blink = var.is_blink
-  os_version = var.os_version
-  vm_os_sku = var.vm_os_sku
-  vm_os_offer = var.vm_os_offer
-  authentication_type = var.authentication_type
-}
-
-//********************** Networking **************************//
-module "vnet" {
-  source = "../modules/vnet"
-  vnet_name = var.vnet_name
-  resource_group_name = module.common.resource_group_name
-  location = module.common.resource_group_location
-  nsg_id = module.network-security-group.network_security_group_id
-  address_space = var.address_space
-  subnet_prefixes = var.subnet_prefixes
-}
-
-module "network-security-group" {
-    source = "../modules/network-security-group"
-    resource_group_name = module.common.resource_group_name
-    security_group_name = "${module.common.resource_group_name}_nsg"
-    location = module.common.resource_group_location
-    security_rules = [
-      {
-        name = "AllowAllInBound"
-        priority = "100"
-        direction = "Inbound"
-        access = "Allow"
-        protocol = "*"
-        source_port_ranges = "*"
-        destination_port_ranges = "*"
-        description = "Allow all inbound connections"
-        source_address_prefix = "*"
-        destination_address_prefix = "*"
-      }
-    ]
+resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
+  depends_on = [var.vnet, var.subnet[1]]
+  subnet_id = var.subnets_id[1]
+  network_security_group_id = var.nsg_id
 }
 
 //********************** Load Balancers **************************//
 resource "azurerm_public_ip" "public-ip-lb" {
     name = "${var.vmss_name}-app-1"
-    location = module.common.resource_group_location
-    resource_group_name = module.common.resource_group_name
-    allocation_method = module.vnet.allocation_method
+    location = var.location
+    resource_group_name = var.resource_group_name
+    allocation_method = var.allocation_method
     sku = var.sku
 }
 
 resource "azurerm_lb" "frontend-lb" {
  depends_on = [azurerm_public_ip.public-ip-lb]
  name = "frontend-lb"
- location = module.common.resource_group_location
- resource_group_name = module.common.resource_group_name
+ location = var.location
+ resource_group_name = var.resource_group_name
  sku = var.sku
 
  frontend_ip_configuration {
@@ -95,33 +33,33 @@ resource "azurerm_lb" "frontend-lb" {
 }
 
 resource "azurerm_lb_backend_address_pool" "frontend-lb-pool" {
- resource_group_name = module.common.resource_group_name
+ resource_group_name = var.resource_group_name
  loadbalancer_id = azurerm_lb.frontend-lb.id
  name = "${var.vmss_name}-app-1"
 }
 
 resource "azurerm_lb" "backend-lb" {
  name = "backend-lb"
- location = module.common.resource_group_location
- resource_group_name = module.common.resource_group_name
+ location = var.location
+ resource_group_name = var.resource_group_name
  sku = var.sku
  frontend_ip_configuration {
    name = "backend-lb"
-   subnet_id =  module.vnet.vnet_subnets[1]
-   private_ip_address_allocation = module.vnet.allocation_method
-   private_ip_address = cidrhost(module.vnet.subnet_prefixes[1], var.backend_lb_IP_address)
+   subnet_id =  var.vnet_subnets[1]
+   private_ip_address_allocation = var.allocation_method
+   private_ip_address = cidrhost(var.subnet_prefixes[1], var.backend_lb_IP_address)
  }
 }
 
 resource "azurerm_lb_backend_address_pool" "backend-lb-pool" {
   name = "backend-lb-pool"
   loadbalancer_id = azurerm_lb.backend-lb.id
-  resource_group_name = module.common.resource_group_name
+ resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_lb_probe" "azure_lb_healprob" {
   count = 2
-  resource_group_name = module.common.resource_group_name
+ resource_group_name = var.resource_group_name
   loadbalancer_id = count.index == 0 ? azurerm_lb.frontend-lb.id : azurerm_lb.backend-lb.id
   name = count.index == 0 ? "${var.vmss_name}-app-1" : "backend-lb"
   protocol = var.lb_probe_protocol
@@ -133,7 +71,7 @@ resource "azurerm_lb_probe" "azure_lb_healprob" {
 resource "azurerm_lb_rule" "lbnatrule" {
   depends_on = [azurerm_lb.frontend-lb,azurerm_lb_probe.azure_lb_healprob,azurerm_lb.backend-lb]
   count = 2
-  resource_group_name = module.common.resource_group_name
+  resource_group_name = var.resource_group_name
   loadbalancer_id = count.index == 0 ? azurerm_lb.frontend-lb.id : azurerm_lb.backend-lb.id
   name = count.index == 0 ? "${var.vmss_name}-app-1" : "backend-lb"
   protocol = count.index == 0 ? "Tcp" : "All"
@@ -150,14 +88,14 @@ resource "azurerm_lb_rule" "lbnatrule" {
 resource "random_id" "randomId" {
     keepers = {
         # Generate a new ID only when a new resource group is defined
-        resource_group = module.common.resource_group_name
+         resource_group_name = var.resource_group_name
     }
     byte_length = 8
 }
 resource "azurerm_storage_account" "vm-boot-diagnostics-storage" {
     name = "diag${random_id.randomId.hex}"
-    resource_group_name = module.common.resource_group_name
-    location = module.common.resource_group_location
+    resource_group_name = var.resource_group_name
+    location = var.location
     account_tier = module.common.storage_account_tier
     account_replication_type = module.common.account_replication_type
 }
@@ -175,7 +113,7 @@ resource "azurerm_image" "custom-image" {
   count = local.custom_image_condition ? 1 : 0
   name = "custom-image"
   location = var.location
-  resource_group_name = module.common.resource_group_name
+  resource_group_name = var.resource_group_name
 
   os_disk {
     os_type  = "Linux"
@@ -186,8 +124,8 @@ resource "azurerm_image" "custom-image" {
 
 resource "azurerm_virtual_machine_scale_set" "vmss" {
   name = var.vmss_name
-  location = module.common.resource_group_location
-  resource_group_name = module.common.resource_group_name
+  location = var.location
+  resource_group_name = var.resource_group_name
   zones = local.availability_zones_num_condition
   overprovision = false
 
@@ -235,7 +173,7 @@ resource "azurerm_virtual_machine_scale_set" "vmss" {
       template_version=module.common.template_version
       is_blink=module.common.is_blink
       bootstrap_script64=base64encode(var.bootstrap_script)
-      location=module.common.resource_group_location
+      location=var.location
       sic_key=var.sic_key
       vnet=module.vnet.subnet_prefixes[0]
       enable_custom_metrics=var.enable_custom_metrics ? "yes" : "no"
@@ -317,8 +255,8 @@ resource "azurerm_virtual_machine_scale_set" "vmss" {
 resource "azurerm_monitor_autoscale_setting" "vmss_settings" {
   depends_on = [azurerm_virtual_machine_scale_set.vmss]
   name = var.vmss_name
-  resource_group_name = module.common.resource_group_name
-  location = module.common.resource_group_location
+  resource_group_name = var.resource_group_name
+  location = var.location
   target_resource_id  = azurerm_virtual_machine_scale_set.vmss.id
 
   profile {

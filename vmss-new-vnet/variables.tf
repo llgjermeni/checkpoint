@@ -129,11 +129,6 @@ variable "vm_os_sku" {
   type = string
 }
 
-variable "vm_os_offer" {
-  description = "The name of the image offer to be deployed.Choose from: check-point-cg-r8030, check-point-cg-r8040, check-point-cg-r81"
-  type = string
-}
-
 variable "publisher" {
   description = "CheckPoint publicher"
   default = "checkpoint"

@@ -101,6 +101,12 @@ variable "disk_size" {
   type = string
 }
 
+variable "vm_os_version" {
+  description = "The version of the image that you want to deploy. "
+  type = string
+  default = "latest"
+}
+
 variable "os_version" {
   description = "GAIA OS version"
   type = string
@@ -109,6 +115,16 @@ variable "os_version" {
 variable "vm_os_sku" {
   description = "The sku of the image to be deployed."
   type = string
+}
+
+variable "vm_os_offer" {
+  description = "The name of the image offer to be deployed.Choose from: check-point-cg-r8030, check-point-cg-r8040, check-point-cg-r81"
+  type = string
+}
+
+variable "publisher" {
+  description = "CheckPoint publicher"
+  default = "checkpoint"
 }
 
 variable "authentication_type" {
@@ -162,6 +178,64 @@ locals { // locals for 'management_interface' allowed values
 variable "configuration_template_name" {
   description = "The configuration template name as it appears in the configuration file"
   type = string
+}
+
+variable "storage_account_tier" {
+  description = "Defines the Tier to use for this storage account.Valid options are Standard and Premium"
+  default = "Standard"
+}
+
+locals { // locals for 'storage_account_tier' allowed values
+  storage_account_tier_allowed_values = [
+   "Standard",
+   "Premium"
+  ]
+  // will fail if [var.storage_account_tier] is invalid:
+  validate_storage_account_tier_value = index(local.storage_account_tier_allowed_values, var.storage_account_tier)
+}
+
+variable "account_replication_type" {
+  description = "Defines the type of replication to use for this storage account.Valid options are LRS, GRS, RAGRS and ZRS"
+  type = string
+  default = "LRS"
+}
+
+locals { // locals for 'account_replication_type' allowed values
+  account_replication_type_allowed_values = [
+   "LRS",
+   "GRS",
+   "RAGRS",
+   "ZRS"
+  ]
+  // will fail if [var.account_replication_type] is invalid:
+  validate_account_replication_type_value = index(local.account_replication_type_allowed_values, var.account_replication_type)
+}
+
+variable "storage_account_type" {
+  description = "Defines the type of storage account to be created. Valid options is Standard_LRS, Premium_LRS"
+  type = string
+  default     = "Standard_LRS"
+}
+
+locals { // locals for 'storage_account_type' allowed values
+  storage_account_type_allowed_values = [
+    "Standard_LRS",
+    "Premium_LRS"
+  ]
+  // will fail if [var.storage_account_type] is invalid:
+  validate_storage_account_type_value = index(local.storage_account_type_allowed_values, var.storage_account_type)
+}
+
+//************** Storage OS disk variables **************//
+variable "storage_os_disk_create_option" {
+  description = "The method to use when creating the managed disk"
+  type = string
+  default = "FromImage"
+}
+
+variable "storage_os_disk_caching" {
+  description = "Specifies the caching requirements for the OS Disk"
+  default = "ReadWrite"
 }
 
 //********************** Natworking Variables **************************//

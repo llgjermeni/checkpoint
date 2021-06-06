@@ -44,7 +44,7 @@ resource "azurerm_lb" "backend-lb" {
  frontend_ip_configuration {
    name = "backend-lb"
    subnet_id =  var.vnet_subnets[1]
-   private_ip_address_allocation = var.allocation_method
+   private_ip_address_allocation = var.vnet_allocation_method
    private_ip_address = cidrhost(var.subnet_prefixes[1], var.backend_lb_IP_address)
  }
 }
@@ -57,7 +57,7 @@ resource "azurerm_lb_backend_address_pool" "backend-lb-pool" {
 
 resource "azurerm_lb_probe" "azure_lb_healprob" {
   count = 2
- resource_group_name = var.resource_group_name
+  resource_group_name = var.resource_group_name
   loadbalancer_id = count.index == 0 ? azurerm_lb.frontend-lb.id : azurerm_lb.backend-lb.id
   name = count.index == 0 ? "${var.vmss_name}-app-1" : "backend-lb"
   protocol = var.lb_probe_protocol
@@ -94,8 +94,8 @@ resource "azurerm_storage_account" "vm-boot-diagnostics-storage" {
     name = "diag${random_id.randomId.hex}"
     resource_group_name = var.resource_group_name
     location = var.location
-    account_tier = module.common.storage_account_tier
-    account_replication_type = module.common.account_replication_type
+    account_tier = var.storage_account_tier
+    account_replication_type = var.account_replication_type
 }
 
 //********************** Virtual Machines **************************//
@@ -137,43 +137,43 @@ resource "azurerm_virtual_machine_scale_set" "vmss" {
 
   storage_profile_image_reference {
     id = local.custom_image_condition ? azurerm_image.custom-image[0].id : null
-    publisher = local.custom_image_condition ? null : module.common.publisher
-    offer = module.common.vm_os_offer
-    sku = module.common.vm_os_sku
-    version = module.common.vm_os_version
+    publisher = local.custom_image_condition ? null : var.publisher
+    offer = var.vm_os_offer
+    sku = var.vm_os_sku
+    version = var.vm_os_version
   }
 
   storage_profile_os_disk {
-    create_option = module.common.storage_os_disk_create_option
-    caching = module.common.storage_os_disk_caching
-    managed_disk_type = module.common.storage_account_type
+    create_option = var.storage_os_disk_create_option
+    caching = var.storage_os_disk_caching
+    managed_disk_type = var.storage_account_type
   }
 
   dynamic "plan" {
     for_each = local.custom_image_condition ? [
     ] : [1]
     content {
-      name = module.common.vm_os_sku
-      publisher = module.common.publisher
-      product = module.common.vm_os_offer
+      name = var.vm_os_sku
+      publisher = var.publisher
+      product = var.vm_os_offer
     }
   }
 
   os_profile {
     computer_name_prefix  = var.vmss_name
-    admin_username = module.common.admin_username
-    admin_password = module.common.admin_password
+    admin_username = var.admin_username
+    admin_password = var.admin_password
     custom_data = templatefile("${path.module}/cloud-init.sh",{
-      installation_type=module.common.installation_type
-      allow_upload_download= module.common.allow_upload_download
-      os_version=module.common.os_version
-      template_name=module.common.template_name
-      template_version=module.common.template_version
-      is_blink=module.common.is_blink
+      installation_type=var.installation_type
+      allow_upload_download= var.allow_upload_download
+      os_version=var.os_version
+      template_name=var.template_name
+      template_version=var.template_version
+      is_blink=var.is_blink
       bootstrap_script64=base64encode(var.bootstrap_script)
       location=var.location
       sic_key=var.sic_key
-      vnet=module.vnet.subnet_prefixes[0]
+      vnet=var.subnet_prefixes[0]
       enable_custom_metrics=var.enable_custom_metrics ? "yes" : "no"
     })
   }
@@ -192,8 +192,8 @@ resource "azurerm_virtual_machine_scale_set" "vmss" {
   }
 
   boot_diagnostics {
-    enabled = module.common.boot_diagnostics
-    storage_uri = module.common.boot_diagnostics ? join(",", azurerm_storage_account.vm-boot-diagnostics-storage.*.primary_blob_endpoint) : ""
+    enabled = var.boot_diagnostics
+    storage_uri = var.boot_diagnostics ? join(",", azurerm_storage_account.vm-boot-diagnostics-storage.*.primary_blob_endpoint) : ""
   }
 
   upgrade_policy_mode = "Manual"
@@ -203,7 +203,7 @@ resource "azurerm_virtual_machine_scale_set" "vmss" {
      primary = true
      ip_forwarding = false
      accelerated_networking = true
-     network_security_group_id = module.network-security-group.network_security_group_id
+     network_security_group_id = var.nsg_id
      ip_configuration {
        name = "ipconfig1"
        subnet_id = module.vnet.vnet_subnets[0]

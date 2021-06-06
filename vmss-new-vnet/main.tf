@@ -4,7 +4,7 @@ resource "azurerm_subnet_network_security_group_association" "security_group_fro
 }
 
 resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
-  subnet_id = var.subnets_id[1]
+  subnet_id = var.vnet_subnets[1]
   network_security_group_id = var.nsg_id
 }
 
@@ -13,7 +13,7 @@ resource "azurerm_public_ip" "public-ip-lb" {
     name = "${var.vmss_name}-app-1"
     location = var.location
     resource_group_name = var.resource_group_name
-    allocation_method = var.allocation_method
+    allocation_method = var.vnet_allocation_method
     sku = var.sku
 }
 

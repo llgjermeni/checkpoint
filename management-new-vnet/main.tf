@@ -17,8 +17,9 @@ resource "azurerm_subnet_network_security_group_association" "security_group_fro
   network_security_group_id = var.nsg_id
 }
 
-resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
-  subnet_id = var.vnet_subnets[1]
+resource "azurerm_network_interface_security_group_association" "security_group_association" {
+  depends_on = [azurerm_network_interface.nic, var.nsg_id]
+  network_interface_id = azurerm_network_interface.nic.id
   network_security_group_id = var.nsg_id
 }
 

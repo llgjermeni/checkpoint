@@ -186,6 +186,18 @@ variable "subnet_prefixes" {
   default = ["10.0.0.0/24","10.0.1.0/24"]
 }
 
+variable "nsg_id" {
+  description = "Network security group to be associated with a Virual Network and subnets"
+  type = string
+}
+
+variable "vnet_allocation_method" {
+  description = "IP address allocation method"
+  type = string
+  default = "Static"
+}
+
+
 //********************* Load Balancers Variables **********************//
 
 variable "backend_lb_IP_address" {

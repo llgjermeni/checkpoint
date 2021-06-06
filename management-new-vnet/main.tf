@@ -13,6 +13,7 @@ resource "azurerm_public_ip" "public-ip" {
 }
 
 resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
+  depends_on = [var.nsg_id]
   subnet_id = var.vnet_subnets[0]
   network_security_group_id = var.nsg_id
 }

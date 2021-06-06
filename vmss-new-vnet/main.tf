@@ -122,7 +122,15 @@ resource "azurerm_image" "custom-image" {
   }
 }
 
+resource "azurerm_marketplace_agreement" "marketplace" {
+  publisher = var.publisher
+  offer     = var.vm_os_offer
+  plan      = var.vm_os_sku
+}
+
 resource "azurerm_virtual_machine_scale_set" "vmss" {
+  depends_on = [
+    azurerm_marketplace_agreement.marketplace]
   name = var.vmss_name
   location = var.location
   resource_group_name = var.resource_group_name

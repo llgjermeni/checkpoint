@@ -266,10 +266,10 @@ variable "bootstrap_script" {
   #"touch /home/admin/bootstrap.txt; echo 'hello_world' > /home/admin/bootstrap.txt"
 }
 
-# variable "nsg_id" {
-#   description = "Network security group to be associated with a Virual Network and subnets"
-#   type = string
-# }
+variable "nsg_id" {
+  description = "Network security group to be associated with a Virual Network and subnets"
+  type = string
+}
 
 //********************** Credentials **************************//
 # variable "tenant_id" {

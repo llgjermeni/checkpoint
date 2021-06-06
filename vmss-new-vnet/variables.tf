@@ -251,20 +251,20 @@ variable "storage_os_disk_caching" {
 }
 
 //********************** Natworking Variables **************************//
-variable "vnet_name" {
-  description = "Virtual Network name"
-  type = string
-}
+# variable "vnet_name" {
+#   description = "Virtual Network name"
+#   type = string
+# }
 
 variable "vnet_subnets" {
 type = list(string)
 }
 
-variable "address_space" {
-  description = "The address space that is used by a Virtual Network."
-  type = string
-  default = "10.0.0.0/16"
-}
+# variable "address_space" {
+#   description = "The address space that is used by a Virtual Network."
+#   type = string
+#   default = "10.0.0.0/16"
+# }
 
 variable "subnet_prefixes" {
   description = "Address prefix to be used for netwok subnets"

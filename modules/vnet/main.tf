@@ -49,8 +49,9 @@ resource "azurerm_subnet_route_table_association" "frontend_association" {
 }
 
 resource "azurerm_route_table" "backend" {
-  count = length(var.subnet_names) >= 2 ? 1 : 0
-  name = azurerm_subnet.subnet[1].name
+  count = length(var.subnet_names) > 2 ? 1 : 0
+  name = element(azurerm_subnet.subnet.*.name, count.index)
+  # name = azurerm_subnet.subnet[1].name
   location = var.location
   resource_group_name = var.resource_group_name
 
@@ -62,7 +63,8 @@ resource "azurerm_route_table" "backend" {
 }
 
 resource "azurerm_subnet_route_table_association" "backend_association" {
-  count = length(var.subnet_names) >= 2 ? 1 : 0
-  subnet_id = azurerm_subnet.subnet[1].id
+  count = length(var.subnet_names) > 2 ? 1 : 0
+  subnet_id =     element(azurerm_subnet.subnet.*.id, count.index)
+ # subnet_id = azurerm_subnet.subnet[1].id
   route_table_id = azurerm_route_table.backend[count.index].id
 }

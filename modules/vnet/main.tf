@@ -67,10 +67,10 @@ resource "azurerm_subnet_route_table_association" "backend_association" {
   route_table_id = azurerm_route_table.backend[count.index].id
 }
 
-resource "azurerm_route_table" "ngnx" {
-  count = length(var.subnet_names) > 2 ? length(var.subnet_names) : 0
-  name = element(azurerm_subnet.subnet.*.name, count.index)
-  # name = azurerm_subnet.subnet[1].name
+resource "azurerm_route_table" "ngnx1" {
+  count = length(var.subnet_names) >= 2 ? 1 : 0
+  # name = element(azurerm_subnet.subnet.*.name, count.index)
+  name = azurerm_subnet.subnet[2].name
   location = var.location
   resource_group_name = var.resource_group_name
 
@@ -81,10 +81,32 @@ resource "azurerm_route_table" "ngnx" {
   }
 }
 
-resource "azurerm_subnet_route_table_association" "ngnx_association" {
-  count = length(var.subnet_names) > 2 ? length(var.subnet_names) : 0
-  subnet_id =     element(azurerm_subnet.subnet.*.id, count.index)
- # subnet_id = azurerm_subnet.subnet[1].id
-  route_table_id = element(azurerm_route_table.backend.*.id, count.index)
-  # route_table_id = azurerm_route_table.backend[count.index].id
+resource "azurerm_subnet_route_table_association" "ngnx1_association" {
+  count = length(var.subnet_names) >= 2 ? 1 : 0
+  # subnet_id =     element(azurerm_subnet.subnet.*.id, count.index)
+ subnet_id = azurerm_subnet.subnet[2].id
+  # route_table_id = element(azurerm_route_table.backend.*.id, count.index)
+  route_table_id = azurerm_route_table.backend[count.index].id
+}
+
+resource "azurerm_route_table" "ngnx2" {
+  count = length(var.subnet_names) >= 2 ? 1 : 0
+  # name = element(azurerm_subnet.subnet.*.name, count.index)
+  name = azurerm_subnet.subnet[3].name
+  location = var.location
+  resource_group_name = var.resource_group_name
+
+  route {
+    name = "To-Internet"
+    address_prefix = "0.0.0.0/0"
+    next_hop_type = local.next_hop_type_allowed_values[4]
+  }
+}
+
+resource "azurerm_subnet_route_table_association" "ngnx2_association" {
+  count = length(var.subnet_names) >= 2 ? 1 : 0
+  # subnet_id =     element(azurerm_subnet.subnet.*.id, count.index)
+ subnet_id = azurerm_subnet.subnet[3].id
+  # route_table_id = element(azurerm_route_table.backend.*.id, count.index)
+  route_table_id = azurerm_route_table.backend[count.index].id
 }

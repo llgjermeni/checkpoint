@@ -66,5 +66,6 @@ resource "azurerm_subnet_route_table_association" "backend_association" {
   count = length(var.subnet_names) > 2 ? length(var.subnet_names) : 0
   subnet_id =     element(azurerm_subnet.subnet.*.id, count.index)
  # subnet_id = azurerm_subnet.subnet[1].id
-  route_table_id = azurerm_route_table.backend[count.index].id
+  route_table_id = element(azurerm_route_table.backend.*.id, count.index)
+  # route_table_id = azurerm_route_table.backend[count.index].id
 }

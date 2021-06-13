@@ -86,7 +86,7 @@ resource "azurerm_subnet_route_table_association" "ngnx1_association" {
   # subnet_id =     element(azurerm_subnet.subnet.*.id, count.index)
  subnet_id = azurerm_subnet.subnet[2].id
   # route_table_id = element(azurerm_route_table.backend.*.id, count.index)
-  route_table_id = azurerm_route_table.backend[count.index].id
+  route_table_id = azurerm_route_table.ngnx1[count.index].id
 }
 
 resource "azurerm_route_table" "ngnx2" {
@@ -108,5 +108,5 @@ resource "azurerm_subnet_route_table_association" "ngnx2_association" {
   # subnet_id =     element(azurerm_subnet.subnet.*.id, count.index)
  subnet_id = azurerm_subnet.subnet[3].id
   # route_table_id = element(azurerm_route_table.backend.*.id, count.index)
-  route_table_id = azurerm_route_table.backend[count.index].id
+  route_table_id = azurerm_route_table.ngnx2[count.index].id
 }

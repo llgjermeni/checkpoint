@@ -39,8 +39,8 @@ module "vnet" {
   resource_group_name = module.common.resource_group_name
   location            = module.common.resource_group_location
   address_space       = "10.0.0.0/16"
-  subnet_names        = ["Frontend", "Backend", "ha-subnet", "mgmt-subnet"]  # , "ha-subnet", "mgmt-subnet"
-  subnet_prefixes     = ["10.0.0.0/24", "10.0.1.0/24", "10.0.3.0/24", "10.0.6.0/24"]  # , "10.0.3.0/24", "10.0.6.0/24"
+  subnet_names        = ["Frontend", "Backend"]  # , "ha-subnet", "mgmt-subnet"
+  subnet_prefixes     = ["10.0.0.0/24", "10.0.1.0/24"]  # , "10.0.3.0/24", "10.0.6.0/24"
 }
 
 //********************** Single new vnet**************************//

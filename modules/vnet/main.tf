@@ -85,7 +85,7 @@ resource "azurerm_subnet_route_table_association" "ngnx_association" {
   count = length(var.subnet_names) > 2 ? 2 : 0
   subnet_id =     element(azurerm_subnet.subnet.*.id, count.index+2)
 #  subnet_id = azurerm_subnet.subnet[2].id
-  route_table_id = element(azurerm_route_table.ngnx1.*.id, count.index+2)
+  route_table_id = element(azurerm_route_table.ngnx.*.id, count.index+2)
   # route_table_id = azurerm_route_table.ngnx1[count.index].id
 }
 

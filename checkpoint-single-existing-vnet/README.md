@@ -1,15 +1,17 @@
-# Check Point CloudGuard IaaS Management Terraform deployment for Azure
+# Check Point CloudGuard IaaS High Availability Terraform deployment for Azure
 
-### Deploy the module management new vnet
+### Deploy the module Single existing vnet
 
-I have uploaded the code inside my github repo to make the testing like the real deployment that the client may use. If you fork the repo in your github repo then you need to change the source of module.  
-With this module you are going to deploy also vnet and nsg module.
+I have uploaded the code inside my github repo to make the testing like the real deployment that the client may use. If you fork the repo in your github repo then you need to change the source of module. This module need to create vnet and 2 subnet before you make the deployment. Change the nameing of these inside the module "checkpoint-single-existing-vnet".
 
 In the provider section enter the details needed for authentication. 
 
 You can copy paste this code without any change and run terraform commands.
 
-```Terraform 
+
+
+```Terraform
+//********************** Providers **************************//
 provider "azurerm" {
    subscription_id = "xxxxxxxxxxxxx"
    client_id       = "xxxxxxxxxxx"
@@ -19,169 +21,83 @@ provider "azurerm" {
   features {}
 }
 
-module "network-security-group" {
-  source = "github.com/llgjermeni/checkpoint/modules/network-security-group"
-   
-  resource_group_name = module.common.resource_group_name
-  security_group_name = "${module.common.resource_group_name}-nsg"
-  location = module.common.resource_group_location
-  security_rules = [
-    {
-      name = "SSH"
-      priority = "100"
-      direction = "Inbound"
-      access = "Allow"
-      protocol = "Tcp"
-      source_port_ranges = "*"
-      destination_port_ranges = "22"
-      description = "Allow inbound SSH connection"
-      source_address_prefix = "0.0.0.0/0"
-      destination_address_prefix = "*"
-    },
-    {
-      name = "GAiA-portal"
-      priority = "110"
-      direction = "Inbound"
-      access = "Allow"
-      protocol = "Tcp"
-      source_port_ranges = "*"
-      destination_port_ranges = "443"
-      description = "Allow inbound HTTPS access to the GAiA portal"
-      source_address_prefix = "0.0.0.0/0"
-      destination_address_prefix = "*"
-    },
-    {
-      name = "SmartConsole-1"
-      priority = "120"
-      direction = "Inbound"
-      access = "Allow"
-      protocol = "Tcp"
-      source_port_ranges = "*"
-      destination_port_ranges = "18190"
-      description = "Allow inbound access using the SmartConsole GUI client"
-      source_address_prefix = "0.0.0.0/0"
-      destination_address_prefix = "*"
-    },
-    {
-      name = "SmartConsole-2"
-      priority = "130"
-      direction = "Inbound"
-      access = "Allow"
-      protocol = "Tcp"
-      source_port_ranges = "*"
-      destination_port_ranges = "19009"
-      description = "Allow inbound access using the SmartConsole GUI client"
-      source_address_prefix = "0.0.0.0/0"
-      destination_address_prefix = "*"
-    },
-    {
-      name = "Logs"
-      priority = "140"
-      direction = "Inbound"
-      access = "Allow"
-      protocol = "Tcp"
-      source_port_ranges = "*"
-      destination_port_ranges = "257"
-      description = "Allow inbound logging connections from managed gateways"
-      source_address_prefix = "*"
-      destination_address_prefix = "*"
-    },
-    {
-      name = "ICA-pull"
-      priority = "150"
-      direction = "Inbound"
-      access = "Allow"
-      protocol = "Tcp"
-      source_port_ranges = "*"
-      destination_port_ranges = "18210"
-      description = "Allow security gateways to pull a SIC certificate"
-      source_address_prefix = "*"
-      destination_address_prefix = "*"
-    },
-    {
-      name = "CRL-fetch"
-      priority = "160"
-      direction = "Inbound"
-      access = "Allow"
-      protocol = "Tcp"
-      source_port_ranges = "*"
-      destination_port_ranges = "18264"
-      description = "Allow security gateways to fetch CRLs"
-      source_address_prefix = "*"
-      destination_address_prefix = "*"
-    },
-    {
-      name = "Policy-fetch"
-      priority = "170"
-      direction = "Inbound"
-      access = "Allow"
-      protocol = "Tcp"
-      source_port_ranges = "*"
-      destination_port_ranges = "18191"
-      description = "Allow security gateways to fetch policy"
-      source_address_prefix = "*"
-      destination_address_prefix = "*"
-    }
-  ]
-}
-
-//********************** Networking **************************//
-module "vnet" {
-  source = "github.com/llgjermeni/checkpoint/modules/vnet"
-
-  vnet_name = "checkpoint-vnet"
-  resource_group_name = module.common.resource_group_name
-  location = module.common.resource_group_location
-  address_space = "10.0.0.0/16"
-  subnet_prefixes = ["10.0.0.0/24"]
-  subnet_names = ["mgmt_name-subnet"]
-}
-
-
-module "mgnt-new-vnet" {
-  source                        = "github.com/llgjermeni/checkpoint/management-new-vnet"
+//********************** Basic Configuration **************************//
+module "common" {
+  source                 = "github.com/llgjermeni/checkpoint/modules/common"
   
-  
-  source_image_vhd_uri            = "noCustomUri"               # "noCustomUri"
-  resource_group_name             = module.common.resource_group_name                               # "checkpoint-mgmt-terraform"
-  mgmt_name                       = "checkpoint-mgmt-terraform"                                   # "checkpoint-mgmt-terraform"
-  location                        = module.common.resource_group_location                                          # "eastus"
-  admin_password                  = module.common.admin_password                                    # "xxxxxxxxxxxx"
-  vm_size                         = module.common.vm_size                                           # "Standard_D3_v2"
-  disk_size                       = module.common.disk_size                                         # "110"
-  vm_os_sku                       = module.common.vm_os_sku                                            # "mgmt-byol"
-  vm_os_offer                     = module.common.vm_os_offer                                          # "check-point-cg-r8030"
-  os_version                      = module.common.os_version                                   # "R80.30"
-  bootstrap_script                = ""                                   # "touch /home/admin/bootstrap.txt; echo 'hello_world' > /home/admin/bootstrap.txt"
-  allow_upload_download           = module.common.allow_upload_download                                     # true
-  authentication_type             = module.common.authentication_type                               # "Password"
-  installation_type               = "management"
-  is_blink                        = module.common.is_blink 
-  vnet_subnets                    = module.vnet.vnet_subnets
-  nsg_id                          = module.network-security-group.network_security_group_id
-  management_GUI_client_network   = "0.0.0.0/0"                   # "0.0.0.0/0"
+  resource_group_name    = "checkpoint-rg"
+  location               = "eastus"
+  admin_password         = "Hollywood@2020"                       # "xxxxxxxxxxxx"
+  allow_upload_download  = true
+  vm_size                = "Standard_D3_v2"                       # "Standard_D3_v2"
+  disk_size              = "110"                                  # "110"
+  vm_os_sku              = "sg-byol"                              # "mgmt-byol"
+  vm_os_offer            = "check-point-cg-r8040"                 # "check-point-cg-r8030"
+  os_version             = "R80.40"                               # "R80.30"
+  authentication_type    = "Password"                                # "Password"
+  is_blink               = true   
+  number_of_vm_instances = 1     
+  template_version       = "20210126"  
+  template_name          = "single_terraform"    
+  tags                   = {
 
+  }         
 }
+
+
+//********************** Single existing vnet**************************//
+module "checkpoint-single-existing-vnet" {
+  source                        = "github.com/llgjermeni/checkpoint/checkpoint-single-existing-vnet"
+  
+  # enter your subscription_id 
+  subscription_id               = "xxxxxxxxxxxxxxxxx" # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  
+  source_image_vhd_uri          = "noCustomUri"                          # "noCustomUri"
+  resource_group_name           = module.common.resource_group_name
+  location                      = module.common.resource_group_location
+  sg_name                       = "sg-machine"                           # "checkpoint-mgmt-terraform"
+  admin_password                = module.common.admin_password                       # "xxxxxxxxxxxx"
+  vm_size                       = module.common.vm_size                       # "Standard_D3_v2"
+  disk_size                     = module.common.disk_size                                  # "110"
+  vm_os_sku                     = module.common.vm_os_sku                              # "mgmt-byol"
+  vm_os_offer                   = module.common.vm_os_offer                 # "check-point-cg-r8030"
+  os_version                    = module.common.os_version                               # "R80.30"
+  bootstrap_script              = ""                                     # "touch /home/admin/bootstrap.txt; echo 'hello_world' > /home/admin/bootstrap.txt"
+  allow_upload_download         = module.common.allow_upload_download                                   # true
+  authentication_type           = module.common.authentication_type                             # "Password"
+  enable_custom_metrics         = true                                   # true
+  sic_key                       = "hollywood123456789"                   # "xxxxxxxxxxxx"
+  resource_group_id             = module.common.resource_group_id
+  is_blink                      = module.common.is_blink
+  installation_type             = "gateway"  
+ 
+  ############------Networking-------###################
+  # Create an azure vnet with 2 subnet.  
+  vnet_name                     = "check-vnet"              # "checkpoint-mgmt-vnet"
+  vnet_rg                       = "network-rg"
+  subnet_name1                  = "Frontend"
+  subnet_name2                  = "Backend"
+  management_GUI_client_network = "0.0.0.0/0"                    # "0.0.0.0/0"
+}
+
 
 ```
 
-This Terraform module deploys Check Point CloudGuard IaaS Management solution into a new Vnet in Azure.
+This Terraform module deploys Check Point CloudGuard IaaS High Availability solution into an existing Vnet in Azure.
 As part of the deployment the following resources are created:
 - Resource group
-- Virtual network
-- Network security group
-- Virtual Machine
 - System assigned identity
+- Availability Set - conditional creation
+
+See the [Check Point CloudGuard IaaS High Availability for Azure Administration Guide](https://sc1.checkpoint.com/documents/IaaS/WebAdminGuides/EN/CP_CloudGuard_IaaS_HighAvailability_for_Azure/Content/Topics/Check_Point_CloudGuard_IaaS_High_Availability_for_Azure.htm) for additional information
 
 This solution uses the following modules:
 - /terraform/azure/modules/common - used for creating a resource group and defining common variables.
-- /terraform/azure/modules/vnet - used for creating new virtual network and subnets.
-- /terraform/azure/modules/network-security-group - used for creating new network security groups and rules.
 
 
 ## Configurations
 - Install and configure Terraform to provision Azure resources: [Configure Terraform for Azure](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/terraform-install-configure)
-- In order to use ssh connection to VMs, it is **required** to add a public key to the /terraform/azure/management-new-vnet/azure_public_key file.
+- In order to use ssh connection to VMs, it is **required** to add a public key to the /terraform/azure/high-availability-existing-vnet/azure_public_key file.
 
 ## Usage
 - Choose the preferred login method to Azure in order to deploy the solution:
@@ -225,7 +141,7 @@ This solution uses the following modules:
     
     - In the terraform.tfvars file leave empty double quotes for client_secret, client_id and tenant_id variables. 
  
-- Fill all variables in the /terraform/azure/management-new-vnet/terraform.tfvars file with proper values (see below for variables descriptions).
+- Fill all variables in the /terraform/azure/high-availability-existing-vnet/terraform.tfvars file with proper values (see below for variables descriptions).
 - From a command line initialize the Terraform configuration directory:
 
         terraform init
@@ -251,25 +167,31 @@ This solution uses the following modules:
  |  |  |  |  |  |
  | **resource_group_name** | The name of the resource group that will contain the contents of the deployment | string | Resource group names only allow alphanumeric characters, periods, underscores, hyphens and parenthesis and cannot end in a period |
  |  |  |  |  |  |
- | **mgmt_name** | Management name. | string |  
- |  |  |  |  |  |
  | **location** | The name of the resource group that will contain the contents of the deployment. | string | The full list of Azure regions can be found at https://azure.microsoft.com/regions |
  |  |  |  |  |  |
- | **vnet_name** | The name of virtual network that will be created  | string | The name must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens |
+ | **cluster_name** | The name of the Check Point Cluster Object | string | Only alphanumeric characters are allowed, and the name must be 1-30 characters long |
  |  |  |  |  |  |
- | **address_space** | The address space that is used by a Virtual Network. | string | A valid address in CIDR notation. |
+ | **vnet_name** | Virtual Network name | string | The name must begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens |
  |  |  |  |  |  |
- | **subnet_prefix** | Address prefix to be used for network subnet | string | A valid address in CIDR notation. |
+ | **vnet_resource_group** | Resource Group of the existing virtual network | string | The exact name of the existing vnet's resource group |
  |  |  |  |  |  |
- | **management_GUI_client_network** | Allowed GUI clients - GUI clients network CIDR. | string | 
+ | **frontend_subnet_name** | Specifies the name of the external subnet | string | The exact name of the existing external subnet |
+ |  |  |  |  |  |
+ | **backend_subnet_name** | Specifies the name of the internal subnet | string | The exact name of the existing internal subnet |
+ |  |  |  |  |  |
+ | **frontend_IP_addresses** | A list of three whole numbers representing the private ip addresses of the members eth0 NICs and the cluster vip ip addresses. The numbers can be represented as binary integers with no more than the number of digits remaining in the address after the given frontend subnet prefix. The IP addresses are defined by their position in the frontend subnet. | list(number) | 
+ |  |  |  |  |  |
+ | **backend_IP_addresses** | A list of three whole numbers representing the private ip addresses of the members eth1 NICs and the backend lb ip addresses. The numbers can be represented as binary integers with no more than the number of digits remaining in the address after the given backend subnet prefix. The IP addresses are defined by their position in the backend subnet. | list(number) | 
  |  |  |  |  |  |
  | **admin_password** | The password associated with the local administrator account on each cluster member | string | Password must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character |
+ |  |  |  |  |  |
+ | **sic_key** | The Secure Internal Communication one time secret used to set up trust between the cluster object and the management server | string | Only alphanumeric characters are allowed, and the value must be 12-30 characters long |
  |  |  |  |  |  |
  | **vm_size** | Specifies the size of Virtual Machine | string | "Standard_DS2_v2", "Standard_DS3_v2", "Standard_DS4_v2", "Standard_DS5_v2", "Standard_F2s", "Standard_F4s", "Standard_F8s", "Standard_F16s", "Standard_D4s_v3", "Standard_D8s_v3", "Standard_D16s_v3", "Standard_D32s_v3", "Standard_D64s_v3", "Standard_E4s_v3", "Standard_E8s_v3", "Standard_E16s_v3", "Standard_E20s_v3", "Standard_E32s_v3", "Standard_E64s_v3", "Standard_E64is_v3", "Standard_F4s_v2", "Standard_F8s_v2", "Standard_F16s_v2", "Standard_F32s_v2", "Standard_F64s_v2", "Standard_M8ms", "Standard_M16ms", "Standard_M32ms", "Standard_M64ms", "Standard_M64s", "Standard_D2_v2", "Standard_D3_v2", "Standard_D4_v2", "Standard_D5_v2", "Standard_D11_v2", "Standard_D12_v2", "Standard_D13_v2", "Standard_D14_v2", "Standard_D15_v2", "Standard_F2", "Standard_F4", "Standard_F8", "Standard_F16", "Standard_D4_v3", "Standard_D8_v3", "Standard_D16_v3", "Standard_D32_v3", "Standard_D64_v3", "Standard_E4_v3", "Standard_E8_v3", "Standard_E16_v3", "Standard_E20_v3", "Standard_E32_v3", "Standard_E64_v3", "Standard_E64i_v3", "Standard_DS11_v2", "Standard_DS12_v2", "Standard_DS13_v2", "Standard_DS14_v2", "Standard_DS15_v2" |
  |  |  |  |  |  |
  | **disk_size** | Storage data disk size size(GB) | string | A number in the range 100 - 3995 (GB) |
  |  |  |  |  |  |
- | **vm_os_sku** | A sku of the image to be deployed | string |  "mgmt-byol" - BYOL license for R80.30 and above; <br/>"mgmt-25" - PAYG for R80.30 and above; |
+ | **vm_os_sku** | A sku of the image to be deployed | string |  "sg-byol" - BYOL license for R80.30 and above; <br/>"sg-ngtp-v2" - NGTP PAYG license for R80.30 only; <br/>"sg-ngtx-v2" - NGTX PAYG license for R80.30 only; <br/>"sg-ngtp" - NGTP PAYG license for R80.40 and above; <br/>"sg-ngtx" - NGTX PAYG license for R80.40 and above; |
  |  |  |  |  |  |
  | **vm_os_offer** | The name of the image offer to be deployed | string | "check-point-cg-r8030"; <br/>"check-point-cg-r8040"; <br/>"check-point-cg-r81"; |
  |  |  |  |  |  |
@@ -280,8 +202,24 @@ This solution uses the following modules:
  | **allow_upload_download** | Automatically download Blade Contracts and other important data. Improve product experience by sending data to Check Point | boolean | true; <br/>false; |
  |  |  |  |  |  |
  | **authentication_type** | Specifies whether a password authentication or SSH Public Key authentication should be used | string | "Password"; <br/>"SSH Public Key"; |
+ |  |  |  |  |  |
+ | **availability_type** | Specifies whether to deploy the solution based on Azure Availability Set or based on Azure Availability Zone. | string | "Availability Zone"; <br/>"Availability Set"; |
+ |  |  |  |  |  |
+ | **enable_custom_metrics** | Indicates whether CloudGuard Metrics will be use for Cluster members monitoring. | boolean | true; <br/>false; |
 
-
+## Conditional creation
+- To deploy the solution based on Azure Availability Set and create a new Availability Set for the virtual machines:
+```
+availability_type = "Availability Set"
+```
+ Otherwise, to deploy the solution based on Azure Availability Zone:
+```
+availability_type = "Availability Zone"
+```
+-  To enable CloudGuard metrics in order to send statuses and statistics collected from HA instances to the Azure Monitor service:
+  ```
+  enable_custom_metrics = true
+  ```
 
 ## Example
     client_secret                   = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -289,22 +227,27 @@ This solution uses the following modules:
     tenant_id                       = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     subscription_id                 = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     source_image_vhd_uri            = "noCustomUri"
-    resource_group_name             = "checkpoint-mgmt-terraform"
-    mgmt_name                       = "checkpoint-mgmt-terraform"
+    resource_group_name             = "checkpoint-ha-terraform"
+    cluster_name                    = "checkpoint-ha-terraform"
     location                        = "eastus"
-    vnet_name                       = "checkpoint-mgmt-vnet"
-    address_space                   = "10.0.0.0/16"
-    subnet_prefix                   = "10.0.0.0/24"
-    management_GUI_client_network   = "0.0.0.0/0"
+    vnet_name                       = "checkpoint-ha-vnet"
+    vnet_resource_group             = "existing-vnet"
+    frontend_subnet_name            = "frontend"
+    backend_subnet_name             = "backend"
+    frontend_IP_addresses           = [5, 6, 7]
+    backend_IP_addresses            = [5, 6, 7]
     admin_password                  = "xxxxxxxxxxxx"
+    sic_key                         = "xxxxxxxxxxxx"
     vm_size                         = "Standard_D3_v2"
     disk_size                       = "110"
-    vm_os_sku                       = "mgmt-byol"
+    vm_os_sku                       = "sg-byol"
     vm_os_offer                     = "check-point-cg-r8030"
     os_version                      = "R80.30"
     bootstrap_script                = "touch /home/admin/bootstrap.txt; echo 'hello_world' > /home/admin/bootstrap.txt"
     allow_upload_download           = true
     authentication_type             = "Password"
+    availability_type               = "Availability Zone"
+    enable_custom_metrics           = true
     
 ## Revision History
 In order to check the template version refer to the [sk116585](https://supportcenter.checkpoint.com/supportcenter/portal?eventSubmit_doGoviewsolutiondetails=&solutionid=sk116585)
@@ -313,7 +256,7 @@ In order to check the template version refer to the [sk116585](https://supportce
 | ---------------- | ------------- |
 | 20210309 | - Add "source_image_vhd_uri" variable for using a custom development image |
 | | | |
-| 20210111 | First release of Check Point CloudGuard IaaS Management Terraform deployment into a new Vnet in Azure. |
+| 20210111 | First release of Check Point CloudGuard IaaS High Availability Terraform deployment into an existing Vnet in Azure. |
 | | | |
 
 ## License

@@ -67,7 +67,7 @@ resource "azurerm_subnet_route_table_association" "backend_association" {
   route_table_id = azurerm_route_table.backend[count.index].id
 }
 
-resource "azurerm_route_table" "ngnx1" {
+resource "azurerm_route_table" "ngnx" {
   count = length(var.subnet_names) > 2 ? 2 : 0
   name = element(azurerm_subnet.subnet.*.name, count.index+2)
   # name = azurerm_subnet.subnet[count.index+2].name
@@ -81,7 +81,7 @@ resource "azurerm_route_table" "ngnx1" {
   }
 }
 
-resource "azurerm_subnet_route_table_association" "ngnx1_association" {
+resource "azurerm_subnet_route_table_association" "ngnx_association" {
   count = length(var.subnet_names) > 2 ? 2 : 0
   subnet_id =     element(azurerm_subnet.subnet.*.id, count.index+2)
 #  subnet_id = azurerm_subnet.subnet[2].id

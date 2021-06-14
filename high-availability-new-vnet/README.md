@@ -80,7 +80,7 @@ module "ha-new-vnet" {
   source                        = "github.com/llgjermeni/checkpoint/high-availability-new-vnet"
 
 
-  tenant_id                       = "f7eaafcb-db88-4c74-b1e3-c66bd04e7a0c"                                         # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  tenant_id                       = "xxxxxxxxxxxxxxxxx"                                         # "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   source_image_vhd_uri            = "noCustomUri"               # "noCustomUri"
   resource_group_name             = module.common.resource_group_name                               # "checkpoint-ha-terraform"
   cluster_name                    = "checkpoint-ha-terraform"                                      # "checkpoint-ha-terraform"

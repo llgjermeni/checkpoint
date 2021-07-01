@@ -36,7 +36,7 @@ resource "azurerm_network_interface" "nic" {
     name = "ipconfig1"
     subnet_id = var.vnet_subnets[0]
     private_ip_address_allocation = var.vnet_allocation_method
-    private_ip_address = cidrhost(var.subnet_prefixes, 4)
+    private_ip_address = cidrhost(var.subnet_prefixes[0], 4)
     public_ip_address_id = azurerm_public_ip.public-ip.id
   }
 }

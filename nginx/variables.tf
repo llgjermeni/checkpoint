@@ -182,7 +182,7 @@ locals {
   // Will fail if var.address_space is invalid
   # regex_address_space = regex(local.regex_valid_network_cidr, var.address_space) == var.address_space ? 0 : "Variable [address_space] must be a valid address in CIDR notation."
   // Will fail if var.subnet_prefix is invalid
-  regex_subnet_prefix = regex(local.regex_valid_network_cidr, var.subnet_prefix) == var.subnet_prefix ? 0 : "Variable [subnet_prefix] must be a valid address in CIDR notation."
+  # regex_subnet_prefix = regex(local.regex_valid_network_cidr, var.subnet_prefixes) == var.subnet_prefixes ? 0 : "Variable [subnet_prefixes] must be a valid address in CIDR notation."
 }
 
 variable "nsg_id" {

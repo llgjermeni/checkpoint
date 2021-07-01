@@ -11,7 +11,7 @@ resource "azurerm_subnet_network_security_group_association" "security_group_fro
 
 resource "azurerm_subnet_network_security_group_association" "security_group_backend_association" {
   depends_on = [var.nsg_id]
-  subnet_id = var.subnets_id[2]
+  subnet_id = var.vnet_subnets[2]
   network_security_group_id = var.nsg_id
 }
 
@@ -39,7 +39,7 @@ resource "azurerm_network_interface" "nic1" {
     name = "ipconfig1"
     subnet_id = var.vnet_subnets[1]
     private_ip_address_allocation = var.vnet_allocation_method
-    private_ip_address = cidrhost(var.subnet_prefixes, 4)
+    private_ip_address = cidrhost(var.subnet_prefixes[1], 4)
     # public_ip_address_id = azurerm_public_ip.public-ip.id
   }
 }
@@ -53,9 +53,9 @@ resource "azurerm_network_interface" "nic2" {
 
   ip_configuration {
     name                          = "ipconfig2"
-    subnet_id                     = var.subnet_id[2]
+    subnet_id                     = var.vnet_subnets[2]
     private_ip_address_allocation = var.vnet_allocation_method
-    private_ip_address            = cidrhost(var.subnet_prefixes, 4)
+    private_ip_address            = cidrhost(var.subnet_prefixes[2], 4)
   }
 }
 

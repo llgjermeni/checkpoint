@@ -1,6 +1,50 @@
 resource "azurerm_resource_group" "resource_group" {
-  name = var.resource_group_name
+  name = azurerm_resource_group.resource_group.name
   location = var.location
+}
+
+locals { // locals for 'next_hop_type' allowed values
+  next_hop_type_allowed_values = [
+    "VirtualNetworkGateway",
+    "VnetLocal",
+    "Internet",
+    "VirtualAppliance",
+    "None"
+  ]
+}
+
+resource "azurerm_route_table" "nginx1_route_table" {
+  name = "nginx-route1"
+  location = var.location
+  resource_group_name = var.vnet_rg
+
+  route {
+    name = "To-Internet"
+    address_prefix = "0.0.0.0/0"
+    next_hop_type = local.next_hop_type_allowed_values[4]
+  }
+}
+
+resource "azurerm_subnet_route_table_association" "ngnx1_association" {
+  subnet_id = var.vnet_subnets[1]
+  route_table_id = azurerm_route_table.nginx1_route_table.id
+}
+
+resource "azurerm_route_table" "nginx2_route_table" {
+  name = "nginx-route2"
+  location = var.location
+  resource_group_name = var.vnet_rg
+
+  route {
+    name = "To-Internet"
+    address_prefix = "0.0.0.0/0"
+    next_hop_type = local.next_hop_type_allowed_values[4]
+  }
+}
+
+resource "azurerm_subnet_route_table_association" "ngnx2_association" {
+  subnet_id = var.vnet_subnets[2]
+  route_table_id = azurerm_route_table.nginx2_route_table.id
 }
 
 resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
@@ -32,7 +76,7 @@ resource "azurerm_network_interface" "nic1" {
   #   azurerm_public_ip.public-ip]
   name = "${var.nginx_name}-eth0"
   location = var.location
-  resource_group_name = var.resource_group_name
+  resource_group_name = azurerm_resource_group.resource_group.name
   enable_ip_forwarding = false
 
   ip_configuration {
@@ -47,7 +91,7 @@ resource "azurerm_network_interface" "nic1" {
 resource "azurerm_network_interface" "nic2" {
   name                          = "eth1"
   location                = var.location
-  resource_group_name     = var.resource_group_name
+  resource_group_name     = azurerm_resource_group.resource_group.name
   enable_ip_forwarding          = true
   enable_accelerated_networking = true
 
@@ -64,13 +108,13 @@ resource "azurerm_network_interface" "nic2" {
 resource "random_id" "randomId" {
   keepers = {
     # Generate a new ID only when a new resource group is defined
-    resource_group = var.resource_group_name
+    resource_group = azurerm_resource_group.resource_group.name
   }
   byte_length = 8
 }
 resource "azurerm_storage_account" "vm-boot-diagnostics-storage" {
   name = "bootdiag${random_id.randomId.hex}"
-  resource_group_name = var.resource_group_name
+  resource_group_name = azurerm_resource_group.resource_group.name
   location = var.location
   account_tier = var.storage_account_tier
   account_replication_type =var.account_replication_type
@@ -82,24 +126,23 @@ locals {
   SSH_authentication_type_condition = var.authentication_type == "SSH Public Key" ? true : false
 }
 
-resource "azurerm_marketplace_agreement" "marketplace" {
-  publisher = var.publisher
-  offer     = var.vm_os_offer
-  plan      = var.vm_os_sku
-}
+# resource "azurerm_marketplace_agreement" "marketplace" {
+#   publisher = var.publisher
+#   offer     = var.vm_os_offer
+#   plan      = var.vm_os_sku
+# }
 
 resource "azurerm_virtual_machine" "nginx-vm-instance" {
   depends_on = [
     azurerm_network_interface.nic1,
-    azurerm_network_interface.nic2,
-    azurerm_marketplace_agreement.marketplace]
+    azurerm_network_interface.nic2]
   location = var.location
   name = var.nginx_name
   network_interface_ids = [
     azurerm_network_interface.nic1.id,
     azurerm_network_interface.nic2.id
     ]
-  resource_group_name = var.resource_group_name
+  resource_group_name = azurerm_resource_group.resource_group.name
   vm_size = var.vm_size
   delete_os_disk_on_termination = var.delete_os_disk_on_termination
   primary_network_interface_id = azurerm_network_interface.nic1.id

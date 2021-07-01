@@ -150,10 +150,10 @@ variable "storage_os_disk_caching" {
 }
 
 //********************** Natworking Variables **************************//
-# variable "vnet_name" {
-#   description = "Virtual Network name"
-#   type = string
-# }
+variable "vnet_rg" {
+  description = "Virtual Network RG"
+  type = string
+}
 
 variable "vnet_subnets" {
   type = list(string)

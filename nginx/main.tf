@@ -96,11 +96,13 @@ resource "azurerm_virtual_machine" "nginx-vm-instance" {
   location = var.location
   name = var.nginx_name
   network_interface_ids = [
-    azurerm_network_interface.nic.id]
+    azurerm_network_interface.nic1.id,
+    azurerm_network_interface.nic2.id
+    ]
   resource_group_name = var.resource_group_name
   vm_size = var.vm_size
   delete_os_disk_on_termination = var.delete_os_disk_on_termination
-  primary_network_interface_id = azurerm_network_interface.nic.id
+  primary_network_interface_id = azurerm_network_interface.nic1.id
 
   identity {
     type = var.vm_instance_identity_type

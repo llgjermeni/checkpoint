@@ -1,3 +1,7 @@
+resource "azurerm_resource_group" "resource_group" {
+  name = var.resource_group_name
+  location = var.location
+}
 
 resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
   depends_on = [var.nsg_id]
@@ -76,21 +80,7 @@ resource "azurerm_storage_account" "vm-boot-diagnostics-storage" {
 //********************** Virtual Machines **************************//
 locals {
   SSH_authentication_type_condition = var.authentication_type == "SSH Public Key" ? true : false
-  # custom_image_condition = var.source_image_vhd_uri == "noCustomUri" ? false : true
 }
-
-# resource "azurerm_image" "custom-image" {
-#   count = local.custom_image_condition ? 1 : 0
-#   name = "custom-image"
-#   location = var.location
-#   resource_group_name = var.resource_group_name
-
-#   os_disk {
-#     os_type  = "Linux"
-#     os_state = "Generalized"
-#     blob_uri = var.source_image_vhd_uri
-#   }
-# }
 
 resource "azurerm_marketplace_agreement" "marketplace" {
   publisher = var.publisher

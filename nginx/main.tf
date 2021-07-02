@@ -61,8 +61,8 @@ resource "azurerm_subnet_network_security_group_association" "security_group_bac
 
 
 resource "azurerm_network_interface" "nic1" {
-  # depends_on = [
-  #   azurerm_public_ip.public-ip]
+  depends_on = [
+    var.vnet_subnets[1]]
   name = "${var.nginx_name}-eth0"
   location = var.location
   resource_group_name = var.resource_group_name
@@ -84,6 +84,10 @@ resource "azurerm_network_interface_security_group_association" "security_group_
 }
 
 resource "azurerm_network_interface" "nic2" {
+    depends_on = [
+    var.vnet_subnets[2]
+    ]
+
   name                          = "eth1"
   location                = var.location
   resource_group_name     = var.resource_group_name

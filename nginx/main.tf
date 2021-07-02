@@ -59,17 +59,6 @@ resource "azurerm_subnet_network_security_group_association" "security_group_bac
   network_security_group_id = var.nsg_id
 }
 
-resource "azurerm_network_interface_security_group_association" "security_group_association1" {
-  depends_on = [azurerm_network_interface.nic1, var.nsg_id]
-  network_interface_id = azurerm_network_interface.nic1.id
-  network_security_group_id = var.nsg_id
-}
-
-resource "azurerm_network_interface_security_group_association" "security_group_association2" {
-  depends_on = [azurerm_network_interface.nic2, var.nsg_id]
-  network_interface_id = azurerm_network_interface.nic2.id
-  network_security_group_id = var.nsg_id
-}
 
 resource "azurerm_network_interface" "nic1" {
   # depends_on = [
@@ -88,6 +77,12 @@ resource "azurerm_network_interface" "nic1" {
   }
 }
 
+resource "azurerm_network_interface_security_group_association" "security_group_association1" {
+  depends_on = [azurerm_network_interface.nic1, var.nsg_id]
+  network_interface_id = azurerm_network_interface.nic1.id
+  network_security_group_id = var.nsg_id
+}
+
 resource "azurerm_network_interface" "nic2" {
   name                          = "eth1"
   location                = var.location
@@ -101,6 +96,13 @@ resource "azurerm_network_interface" "nic2" {
     private_ip_address_allocation = var.vnet_allocation_method
     private_ip_address            = cidrhost(var.subnet_prefixes[2], 4)
   }
+}
+
+
+resource "azurerm_network_interface_security_group_association" "security_group_association2" {
+  depends_on = [azurerm_network_interface.nic2, var.nsg_id]
+  network_interface_id = azurerm_network_interface.nic2.id
+  network_security_group_id = var.nsg_id
 }
 
 //********************** Storage accounts **************************//

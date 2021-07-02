@@ -151,11 +151,11 @@ resource "azurerm_virtual_machine" "nginx-vm-instance" {
     type = var.vm_instance_identity_type
   }
 
-  plan {
-      name = var.vm_os_sku
-      publisher = var.publisher
-      product = var.vm_os_offer
-    }
+  # plan {
+  #     name = var.vm_os_sku
+  #     publisher = var.publisher
+  #     product = var.vm_os_offer
+  #   }
 
   boot_diagnostics {
     enabled = var.boot_diagnostics

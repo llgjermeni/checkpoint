@@ -67,22 +67,22 @@ resource "azurerm_subnet_route_table_association" "backend_association" {
   route_table_id = azurerm_route_table.backend[count.index].id
 }
 
-# resource "azurerm_route_table" "ngnx" {
-#   count = length(var.subnet_names) > 2 ? 2 : 0
-#   name = element(azurerm_subnet.subnet.*.name, count.index+2)
-#   location = var.location
-#   resource_group_name = var.resource_group_name
+resource "azurerm_route_table" "ngnx" {
+  count = length(var.subnet_names) > 2 ? 2 : 0
+  name = element(azurerm_subnet.subnet.*.name, count.index+2)
+  location = var.location
+  resource_group_name = var.resource_group_name
 
-#   route {
-#     name = "To-Internet"
-#     address_prefix = "0.0.0.0/0"
-#     next_hop_type = local.next_hop_type_allowed_values[4]
-#   }
-# }
+  route {
+    name = "To-Internet"
+    address_prefix = "0.0.0.0/0"
+    next_hop_type = local.next_hop_type_allowed_values[4]
+  }
+}
 
-# resource "azurerm_subnet_route_table_association" "ngnx_association" {
-#   count = length(var.subnet_names) > 2 ? 2 : 0
-#   subnet_id =     element(azurerm_subnet.subnet.*.id, count.index+2)
-#   route_table_id = element(azurerm_route_table.ngnx.*.id, count.index+2)
-# }
+resource "azurerm_subnet_route_table_association" "ngnx_association" {
+  count = length(var.subnet_names) > 2 ? 2 : 0
+  subnet_id =     element(azurerm_subnet.subnet.*.id, count.index+2)
+  route_table_id = element(azurerm_route_table.ngnx.*.id, count.index+2)
+}
 

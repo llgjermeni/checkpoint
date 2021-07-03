@@ -61,8 +61,6 @@ resource "azurerm_subnet_network_security_group_association" "security_group_bac
 
 
 resource "azurerm_network_interface" "nic1" {
-  depends_on = [
-    var.vnet_id]
   name = "${var.nginx_name}-eth0"
   location = var.location
   resource_group_name = var.resource_group_name
@@ -85,13 +83,9 @@ resource "azurerm_network_interface_security_group_association" "security_group_
 }
 
 resource "azurerm_network_interface" "nic2" {
-    depends_on = [
-    var.vnet_id
-    ]
-
-  name                          = "eth1"
-  location                = var.location
-  resource_group_name     = var.resource_group_name
+  name                          = "${var.nginx_name}-eth1"
+  location                      = var.location
+  resource_group_name           = var.resource_group_name
   enable_ip_forwarding          = true
   enable_accelerated_networking = true
 

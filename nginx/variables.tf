@@ -155,10 +155,6 @@ variable "vnet_rg" {
   type = string
 }
 
-variable "vnet_id" {
-  description = "Virtual Network ID"
-  type = string
-}
 variable "vnet_subnets" {
   type = list(string)
 }

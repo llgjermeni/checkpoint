@@ -3,15 +3,15 @@
 #   location = var.location
 # }
 
-# locals { // locals for 'next_hop_type' allowed values
-#   next_hop_type_allowed_values = [
-#     "VirtualNetworkGateway",
-#     "VnetLocal",
-#     "Internet",
-#     "VirtualAppliance",
-#     "None"
-#   ]
-# }
+locals { // locals for 'next_hop_type' allowed values
+  next_hop_type_allowed_values = [
+    "VirtualNetworkGateway",
+    "VnetLocal",
+    "Internet",
+    "VirtualAppliance",
+    "None"
+  ]
+}
 
 # resource "azurerm_route_table" "nginx1_route_table" {
 #   name = "nginx-route1"
@@ -30,22 +30,22 @@
 #   route_table_id = azurerm_route_table.nginx1_route_table.id
 # }
 
-# resource "azurerm_route_table" "nginx2_route_table" {
-#   name = "nginx-route2"
-#   location = var.location
-#   resource_group_name = var.vnet_rg
+resource "azurerm_route_table" "nginx2_route_table" {
+  name = "nginx-route2"
+  location = var.location
+  resource_group_name = var.vnet_rg
 
-#   route {
-#     name = "To-Internet"
-#     address_prefix = "0.0.0.0/0"
-#     next_hop_type = local.next_hop_type_allowed_values[4]
-#   }
-# }
+  route {
+    name = "To-Internet"
+    address_prefix = "0.0.0.0/0"
+    next_hop_type = local.next_hop_type_allowed_values[4]
+  }
+}
 
-# resource "azurerm_subnet_route_table_association" "ngnx2_association" {
-#   subnet_id = var.vnet_subnets[2]
-#   route_table_id = azurerm_route_table.nginx2_route_table.id
-# }
+resource "azurerm_subnet_route_table_association" "ngnx2_association" {
+  subnet_id = var.vnet_subnets[2]
+  route_table_id = azurerm_route_table.nginx2_route_table.id
+}
 
 resource "azurerm_subnet_network_security_group_association" "security_group_frontend_association" {
   depends_on = [var.nsg_id]

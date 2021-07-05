@@ -13,23 +13,6 @@ locals { // locals for 'next_hop_type' allowed values
   ]
 }
 
-# resource "azurerm_route_table" "nginx1_route_table" {
-#   name = "nginx-route1"
-#   location = var.location
-#   resource_group_name = var.vnet_rg
-
-#   route {
-#     name = "To-Internet"
-#     address_prefix = "0.0.0.0/0"
-#     next_hop_type = local.next_hop_type_allowed_values[4]
-#   }
-# }
-
-# resource "azurerm_subnet_route_table_association" "ngnx1_association" {
-#   subnet_id = var.vnet_subnets[1]
-#   route_table_id = azurerm_route_table.nginx1_route_table.id
-# }
-
 resource "azurerm_route_table" "nginx2_route_table" {
   name = "nginx-route2"
   location = var.location
@@ -72,7 +55,6 @@ resource "azurerm_network_interface" "nic1" {
     subnet_id = var.vnet_subnets[1]
     private_ip_address_allocation = var.vnet_allocation_method
     private_ip_address = cidrhost(var.subnet_prefixes[1], 4)
-    # public_ip_address_id = azurerm_public_ip.public-ip.id
   }
 }
 
@@ -152,11 +134,11 @@ resource "azurerm_virtual_machine" "nginx-vm-instance" {
     type = var.vm_instance_identity_type
   }
 
-  # plan {
-  #     name = var.vm_os_sku
-  #     publisher = var.publisher
-  #     product = var.vm_os_offer
-  #   }
+  plan {
+      name = var.vm_os_sku
+      publisher = var.publisher
+      product = var.vm_os_offer
+    }
 
   boot_diagnostics {
     enabled = var.boot_diagnostics

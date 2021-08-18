@@ -137,7 +137,7 @@ module "vnet" {
   subnet_names = ["mgmt_name-subnet"]
 }
 
-
+//********************** Management deployment **************************//
 module "mgnt-new-vnet" {
   source                        = "github.com/llgjermeni/checkpoint/management-new-vnet"
   
@@ -160,6 +160,99 @@ module "mgnt-new-vnet" {
   vnet_subnets                    = module.vnet.vnet_subnets
   nsg_id                          = module.network-security-group.network_security_group_id
   management_GUI_client_network   = "0.0.0.0/0"                   # "0.0.0.0/0"
+
+}
+
+//********************** Used for the Nginx **************************//
+module "common-nginx" {
+  source = "github.com/llgjermeni/checkpoint/modules/common"
+
+  resource_group_name    = "nginx-rg"
+  location               = "eastus"
+  admin_password         = "Hollywood@2020" # "xxxxxxxxxxxx"
+  allow_upload_download  = true
+  vm_size                = "Standard_D3_v2"       # "Standard_D3_v2"
+  disk_size              = "110"                  # "110"
+  vm_os_sku              = "mgmt-byol"
+  vm_os_offer            = "check-point-cg-r8030"
+  os_version             = "R80.40"               # "R80.30"
+  authentication_type    = "Password"             # "Password"
+  is_blink               = false
+  number_of_vm_instances = 1
+  template_version       = "20210126"
+  template_name          = "mgnt_terraform"
+  tags                   = {}
+
+}
+
+//********************** Nsg used for the Nginx **************************//
+module "nginx-network-security-group" {
+  source = "github.com/llgjermeni/checkpoint/modules/network-security-group"
+
+  resource_group_name = module.common-nginx.resource_group_name
+  security_group_name = "${module.common-nginx.resource_group_name}-nsg"
+  location            = module.common.resource_group_location
+  security_rules = [
+        # Nginx security rules
+    {
+      name                       = "SSH"
+      priority                   = "100"
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_ranges         = "*"
+      destination_port_ranges    = "22"
+      description                = "Allow inbound SSH connection"
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
+    },
+    {
+      name                       = "HTTPS"
+      priority                   = "110"
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_ranges         = "*"
+      destination_port_ranges    = "443"
+      description                = "Allow inbound HTTPS access to the GAiA portal"
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
+    },
+    {
+      name                       = "HTTP"
+      priority                   = "1010"
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_ranges         = "*"
+      destination_port_ranges    = "80"
+      description                = "Inbound"
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
+    }
+  ]
+}
+
+//********************** Nginx VM**************************//
+module "nginx" {
+  source = "github.com/llgjermeni/checkpoint/nginx"
+
+  nginx_name                    = "nginx-name"           
+  resource_group_name           = module.common-nginx.resource_group_name
+  location                      = module.common-nginx.resource_group_location 
+  authentication_type           = module.common-nginx.authentication_type     # "Password"
+  admin_password                = module.common-nginx.admin_password          
+  vm_size                       = module.common-nginx.vm_size                 # "Standard_D3_v2"
+  disk_size                     = module.common-nginx.disk_size
+  vm_os_sku                     = "nginx"
+  vm_os_offer                   = "nginx-14-05-2021"
+  vm_os_version                 = "latest"
+  publisher                     = "nilespartnersinc1617691698386"
+
+  vnet_rg                       = module.common.resource_group_name
+  vnet_subnets                  = module.vnet.vnet_subnets
+  subnet_prefixes               = module.vnet.subnet_prefixes
+  nsg_id                        = module.nginx-network-security-group.network_security_group_id
 
 }
 
